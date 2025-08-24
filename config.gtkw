@@ -1,0 +1,115 @@
+[*]
+[*] GTKWave Analyzer v3.3.124 (w)1999-2025 BSI
+[*] Sat Aug 23 12:55:29 2025
+[*]
+[dumpfile] "/home/david/Dropbox/dev/fpga/riscv/core_tb.vcd"
+[dumpfile_mtime] "Sat Aug 23 12:47:07 2025"
+[dumpfile_size] 8176
+[savefile] "/home/david/Dropbox/dev/fpga/riscv/config.gtkw"
+[timestart] 0
+[size] 1920 1001
+[pos] -1 -1
+*-14.903167 200000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] core_tb.
+[sst_width] 290
+[signals_width] 166
+[sst_expanded] 1
+[sst_vpaned_height] 296
+@28
+[color] 3
+core_tb.clk
+@22
+core_tb.cnt[31:0]
+@28
+[color] 1
+core_tb.rst
+@22
+core_tb.fetch_addr[31:0]
+core_tb.fetch_data[31:0]
+@28
+core_tb.fetch_valid
+@200
+-
+-core
+@25
+core_tb.corei.state[1:0]
+@22
+core_tb.corei.pc[31:0]
+core_tb.corei.opcode[6:0]
+@c00028
+core_tb.corei.funct3[2:0]
+@28
+(0)core_tb.corei.funct3[2:0]
+(1)core_tb.corei.funct3[2:0]
+(2)core_tb.corei.funct3[2:0]
+@1401200
+-group_end
+@22
+core_tb.corei.funct7[6:0]
+@28
+core_tb.corei.is_r_type
+core_tb.corei.is_i_type
+core_tb.corei.is_u_type
+core_tb.corei.is_s_type
+core_tb.corei.is_j_type
+core_tb.corei.is_b_type
+core_tb.corei.is_mem
+@22
+core_tb.corei.rs1[4:0]
+core_tb.corei.rs2[4:0]
+core_tb.corei.rd[4:0]
+@28
+core_tb.corei.rd_valid
+@22
+core_tb.corei.imm[31:0]
+core_tb.corei.result[31:0]
+@200
+-regs
+@22
+core_tb.corei.\regfile[0][31:0]
+core_tb.corei.\regfile[1][31:0]
+core_tb.corei.\regfile[2][31:0]
+core_tb.corei.\regfile[3][31:0]
+@200
+-instr
+@28
+core_tb.corei.is_add
+core_tb.corei.is_addi
+core_tb.corei.is_and
+core_tb.corei.is_andi
+core_tb.corei.is_auipc
+core_tb.corei.is_b_type
+core_tb.corei.is_beq
+core_tb.corei.is_bge
+core_tb.corei.is_bgeu
+core_tb.corei.is_blt
+core_tb.corei.is_bltu
+core_tb.corei.is_bne
+core_tb.corei.is_jal
+core_tb.corei.is_jalr
+core_tb.corei.is_lb
+core_tb.corei.is_lbu
+core_tb.corei.is_lh
+core_tb.corei.is_lhu
+core_tb.corei.is_lui
+core_tb.corei.is_lw
+core_tb.corei.is_or
+core_tb.corei.is_ori
+core_tb.corei.is_sb
+core_tb.corei.is_sh
+core_tb.corei.is_sll
+core_tb.corei.is_slli
+core_tb.corei.is_slt
+core_tb.corei.is_slti
+core_tb.corei.is_sltiu
+core_tb.corei.is_sltu
+core_tb.corei.is_sra
+core_tb.corei.is_srai
+core_tb.corei.is_srl
+core_tb.corei.is_srli
+core_tb.corei.is_sub
+core_tb.corei.is_sw
+core_tb.corei.is_xor
+core_tb.corei.is_xori
+[pattern_trace] 1
+[pattern_trace] 0
