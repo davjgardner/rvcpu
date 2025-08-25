@@ -1,18 +1,16 @@
 [*]
 [*] GTKWave Analyzer v3.3.124 (w)1999-2025 BSI
-[*] Sat Aug 23 12:55:29 2025
+[*] Mon Aug 25 00:58:28 2025
 [*]
-[dumpfile] "/home/david/Dropbox/dev/fpga/riscv/core_tb.vcd"
-[dumpfile_mtime] "Sat Aug 23 12:47:07 2025"
-[dumpfile_size] 8176
+[dumpfile] "(null)"
 [savefile] "/home/david/Dropbox/dev/fpga/riscv/config.gtkw"
-[timestart] 0
+[timestart] 1956000
 [size] 1920 1001
 [pos] -1 -1
-*-14.903167 200000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-17.605209 1288000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] core_tb.
 [sst_width] 290
-[signals_width] 166
+[signals_width] 298
 [sst_expanded] 1
 [sst_vpaned_height] 296
 @28
@@ -28,10 +26,13 @@ core_tb.fetch_addr[31:0]
 core_tb.fetch_data[31:0]
 @28
 core_tb.fetch_valid
+@24
+core_tb.instruction_counter[31:0]
+@28
+core_tb.instruction_retired
 @200
--
 -core
-@25
+@24
 core_tb.corei.state[1:0]
 @22
 core_tb.corei.pc[31:0]
@@ -62,14 +63,20 @@ core_tb.corei.rd[4:0]
 core_tb.corei.rd_valid
 @22
 core_tb.corei.imm[31:0]
+[color] 2
 core_tb.corei.result[31:0]
+@28
+core_tb.corei.branch_taken
 @200
 -regs
 @22
 core_tb.corei.\regfile[0][31:0]
 core_tb.corei.\regfile[1][31:0]
 core_tb.corei.\regfile[2][31:0]
+@25
 core_tb.corei.\regfile[3][31:0]
+@22
+core_tb.corei.\regfile[4][31:0]
 @200
 -instr
 @28
@@ -78,7 +85,6 @@ core_tb.corei.is_addi
 core_tb.corei.is_and
 core_tb.corei.is_andi
 core_tb.corei.is_auipc
-core_tb.corei.is_b_type
 core_tb.corei.is_beq
 core_tb.corei.is_bge
 core_tb.corei.is_bgeu
