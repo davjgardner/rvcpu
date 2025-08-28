@@ -1,15 +1,14 @@
 module core(
             input wire        clk,
             input wire        rst,
-            input wire [31:0] fetch_data,
+            input wire        mem_ready,
             input wire [31:0] mem_read_data,
-            output wire [31:0] fetch_addr,
-            output reg        fetch_valid = 1'b0,
             output reg [31:0] mem_addr = 32'h0,
             output reg        mem_read_valid,
             output reg        mem_write_valid,
             output reg [31:0] mem_write_data = 32'h0,
-            output reg instruction_retired = 1'b0
+            output reg [1:0]  mem_width = 2'd0,
+            output reg        instruction_retired = 1'b0
 );
 
    // how do we begin?
@@ -19,6 +18,20 @@ module core(
 
    // I don't think I'm going to try to make it pipelined, to begin with
 
+   // MEMORY
+   // I'd like to unify fetch and load/stores to one memory interface
+   // How does this work with the state machine?
+   // - FETCH waits for mem_ready and registers instruction
+   // - EXECUTE sets mem_addr/data and mem_valid for ld/st
+   // - WRITEBACK waits for mem_ready if ld/st, then sets mem_addr to next pc, mem_valid
+   // Should we add a mem_ready signal?
+   // Should we implement the memory as an AXI bus?
+
+   // Memory widths for mem_width signal
+   localparam MEM_B = 2'd0;
+   localparam MEM_H = 2'd1;
+   localparam MEM_W = 2'd2;
+
    // x0-x31 registers
    // note that x0 is always 0, technically could make this size 31
    // - for now rely on the fact that at rst all regs are 0, and x0 is never written
@@ -27,7 +40,6 @@ module core(
    // - x2 = sp
    reg [31:0] regfile [0:31];
    reg [31:0] pc = 32'h0;
-   assign fetch_addr = pc;
 
    // 4 stages (FSM states?):
    // 1. fetch
@@ -44,8 +56,7 @@ module core(
 
    reg [1:0]  state = STATE_FETCH;
 
-   // because it's nicer to look at
-   wire [31:0] instr = fetch_data;
+   reg [31:0] instr = 32'b0;
    // instruction decoding
    wire [6:0]  opcode = instr[6:0]; // all types
    wire [4:0]  rd = instr[11:7]; // types R, I, U, J
@@ -129,10 +140,15 @@ module core(
 
    reg [31:0]  result = 32'h0;
    reg         branch_taken = 1'b0;
+   wire [31:0] new_pc = (branch_taken? pc + imm:
+                        is_jal?       pc + imm:
+                        // if rd == rs1 this will still get the old rs1
+                        is_jalr?      regfile[rs1] + imm:
+                        // default increment pc
+                                      pc + 32'd4);
 
    always @(posedge clk) begin
       // DEFAULT ASSIGNMENTS
-      fetch_valid <= 1'b0;
       mem_read_valid <= 1'b0;
       mem_write_valid <= 1'b0;
       branch_taken <= 1'b0;
@@ -140,19 +156,25 @@ module core(
 
       if (rst) begin
          pc <= 32'h0;
+         // fetch first instruction (32-bit)
+         mem_addr <= 32'h0;
+         mem_width <= MEM_W;
          state <= STATE_FETCH;
          for (i = 0; i < 32; i = i+1) begin
             regfile[i] <= 32'h0;
          end
-         fetch_valid <= 1'b1;
+         mem_read_valid <= 1'b1;
 
       end
       else begin
          case (state)
            STATE_FETCH: begin
-              // TODO may need to wait for a "ready" here in the future
-              state <= STATE_EXECUTE;
-
+              // wait for fetched instruction to become available
+              if (mem_ready) begin
+                 // register the instruction so we can use mem_read_* later
+                 instr <= mem_read_data;
+                 state <= STATE_EXECUTE;
+              end
            end
            STATE_EXECUTE: begin
               // start with arithmetic
@@ -189,34 +211,45 @@ module core(
                                1'b0);
               // deal with jal* separately
 
+              // memory loads
               if (is_load) begin
                  mem_addr <= regfile[rs1] + imm;
-                 state <= STATE_MEM;
-                 // TODO
+                 mem_read_valid <= 1'b1;
+                 mem_width <= ((is_lb || is_lbu)? MEM_B:
+                               (is_lh || is_lhu)? MEM_H:
+                               MEM_W);
               end
-
+              // memory stores
+              if (is_s_type) begin
+                 mem_addr <= regfile[rs1] + imm;
+                 mem_write_valid <= 1'b1;
+                 mem_width <= (is_sb? MEM_B:
+                               is_sh? MEM_H:
+                               MEM_W);
+                 mem_write_data <= regfile[rs2];
+              end
 
               state <= STATE_WRITEBACK;
            end
-           STATE_MEM: begin
-              // maybe we need to initiate memory stuff here?
-
-           end
            STATE_WRITEBACK: begin
-              // x0 never gets written back
-              if (rd_valid && rd != 0) begin
-                 regfile[rd] <= result;
-              end
+              if (~is_mem || mem_ready) begin
+                 // x0 never gets written back
+                 if (rd_valid && rd != 0) begin
+                    regfile[rd] <= (is_load? mem_read_data : result);
+                 end
 
-              pc <= (branch_taken? pc + imm:
-                     is_jal? pc + imm:
-                     is_jalr? regfile[rs1] + imm: // if rd == rs1 this will still get the old rs1
-                     pc + 32'd4);
-              // Set fetch valid here so data will be ready in the next state
-              fetch_valid <= 1'b1;
-              state = STATE_FETCH;
-              instruction_retired <= 1'b1;
-           end
+                 pc <= new_pc;
+                 // Set fetch valid here so data will be ready in the next state
+                 mem_read_valid <= 1'b1;
+                 // mem_read_addr needs to get the same value as next pc
+                 // idk if there's a nicer way to do this
+                 mem_addr <= new_pc;
+
+                 state = STATE_FETCH;
+                 instruction_retired <= 1'b1;
+              end // if (~is_mem || mem_ready)
+           end // case: STATE_WRITEBACK
+
 
          endcase // case (state)
       end
