@@ -10,8 +10,8 @@ module {name}(input wire         clk,
            input wire [31:0]  mem_addr,
            input wire         mem_read_valid,
            input wire [1:0]   mem_width,
-           output wire [31:0] mem_read_data,
-           output wire        mem_valid);
+           output reg [31:0]  mem_read_data,
+           output reg         mem_ready);
 
    wire [31:0] rom [0:{size}];
 
@@ -20,23 +20,32 @@ module {name}(input wire         clk,
    localparam MEM_H = 2'd1;
    localparam MEM_W = 2'd2;
 
-   assign mem_valid = mem_read_valid;
    wire [29:0] word_idx = mem_addr[31:2];
    wire        halfword_idx = mem_addr[1];
    wire [1:0]  byte_idx = mem_addr[1:0];
 
-   assign mem_read_data = (mem_width == MEM_B?
-                           (byte_idx == 2'd0? {{24'b0, rom[word_idx][7:0]}}:
-                            byte_idx == 2'd1? {{24'b0, rom[word_idx][15:8]}}:
-                            byte_idx == 2'd2? {{24'b0, rom[word_idx][23:16]}}:
-                            {{24'b0, rom[word_idx][31:24]}}):
-                           mem_width == MEM_H?
-                           (halfword_idx? {{16'b0, rom[word_idx][31:16]}}:
-                            {{16'b0, rom[word_idx][15:0]}}):
-                           rom[word_idx]);
-
-
    {data}
+
+   always @(posedge clk) begin
+      mem_ready <= 1'b0;
+      if (rst) begin
+         // do nothing
+      end
+      else begin
+         if (mem_read_valid) begin
+            mem_read_data <= (mem_width == MEM_B?
+                              (byte_idx == 2'd0? {{24'b0, rom[word_idx][7:0]}}:
+                               byte_idx == 2'd1? {{24'b0, rom[word_idx][15:8]}}:
+                               byte_idx == 2'd2? {{24'b0, rom[word_idx][23:16]}}:
+                               {{24'b0, rom[word_idx][31:24]}}):
+                              mem_width == MEM_H?
+                              (halfword_idx? {{16'b0, rom[word_idx][31:16]}}:
+                               {{16'b0, rom[word_idx][15:0]}}):
+                              rom[word_idx]);
+            mem_ready <= 1'b1;
+         end // if (mem_read_valid)
+      end // if (!rst)
+   end // always @(posedge clk)
 
 
 endmodule // {name}

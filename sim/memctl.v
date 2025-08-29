@@ -1,12 +1,12 @@
-module memctl(input wire        clk,
-              input wire        rst,
-              input wire [31:0] mem_addr,
-              input wire        mem_read_valid,
-              input wire        mem_write_valid,
-              input wire [31:0] mem_write_data,
-              input wire [1:0]  mem_width,
-              output reg [31:0] mem_read_data,
-              output reg        mem_valid);
+module memctl(input wire         clk,
+              input wire         rst,
+              input wire [31:0]  mem_addr,
+              input wire         mem_read_valid,
+              input wire         mem_write_valid,
+              input wire [31:0]  mem_write_data,
+              input wire [1:0]   mem_width,
+              output wire [31:0] mem_read_data,
+              output wire        mem_ready);
 
 
    // Memory widths for mem_width signal
@@ -26,7 +26,7 @@ module memctl(input wire        clk,
                                target_rom? mem_addr:
                                32'b0);
 
-   wire       rom_valid;
+   wire       rom_ready;
    wire [31:0] rom_read_data;
 
    rom progmem(.clk(clk),
@@ -35,10 +35,10 @@ module memctl(input wire        clk,
                .mem_read_valid(target_rom && mem_read_valid),
                .mem_width(mem_width),
                .mem_read_data(rom_read_data),
-               .mem_valid(rom_valid));
+               .mem_ready(rom_ready));
 
    wire [31:0] ram_read_data;
-   wire        ram_valid;
+   wire        ram_ready;
 
    wire        ram_read_valid = target_ram && mem_read_valid;
    wire        ram_write_valid = target_ram && mem_write_valid;
@@ -51,12 +51,13 @@ module memctl(input wire        clk,
                                  .mem_write_data(mem_write_data),
                                  .mem_width(mem_width),
                                  .mem_read_data(ram_read_data),
-                                 .mem_valid(ram_valid));
+                                 .mem_ready(ram_ready));
 
-
-
-
-
-
+   assign mem_ready = (target_rom? rom_ready:
+                       target_ram? ram_ready:
+                       1'b0);
+   assign mem_read_data = (target_rom? rom_read_data:
+                           target_ram? ram_read_data:
+                           32'b0);
 
 endmodule // memctl
