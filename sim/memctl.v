@@ -53,11 +53,12 @@ module memctl(input wire         clk,
                                  .mem_read_data(ram_read_data),
                                  .mem_ready(ram_ready));
 
-   assign mem_ready = (target_rom? rom_ready:
-                       target_ram? ram_ready:
-                       1'b0);
+   assign mem_ready = (target_rom & rom_ready) | (target_ram & ram_ready);
+
    assign mem_read_data = (target_rom? rom_read_data:
                            target_ram? ram_read_data:
                            32'b0);
+
+
 
 endmodule // memctl

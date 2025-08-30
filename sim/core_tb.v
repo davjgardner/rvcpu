@@ -23,13 +23,13 @@ module core_tb();
 
    wire mem_read_valid;
    wire mem_write_valid;
-   wire  mem_ready = 1'b0;
+   wire mem_ready;
 
    wire [1:0] mem_width;
 
    wire [31:0] mem_addr;
 
-   wire [31:0] mem_read_data = 32'h0;
+   wire [31:0] mem_read_data;
    wire [31:0] mem_write_data;
 
    memctl mem(.clk(clk),
@@ -38,6 +38,7 @@ module core_tb();
               .mem_read_valid(mem_read_valid),
               .mem_write_valid(mem_write_valid),
               .mem_write_data(mem_write_data),
+              .mem_read_data(mem_read_data),
               .mem_width(mem_width),
               .mem_ready(mem_ready));
 

@@ -8,8 +8,8 @@ module ram
     input wire        mem_write_valid,
     input wire [31:0] mem_write_data,
     input wire [1:0]  mem_width,
-    output reg [31:0] mem_read_data,
-    output reg        mem_ready);
+    output reg [31:0] mem_read_data = 32'b0,
+    output reg        mem_ready = 1'b0);
 
 
    // Memory widths for mem_width signal

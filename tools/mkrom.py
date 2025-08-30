@@ -10,8 +10,8 @@ module {name}(input wire         clk,
            input wire [31:0]  mem_addr,
            input wire         mem_read_valid,
            input wire [1:0]   mem_width,
-           output reg [31:0]  mem_read_data,
-           output reg         mem_ready);
+           output reg [31:0]  mem_read_data = 32'b0,
+           output reg         mem_ready = 1'b0);
 
    wire [31:0] rom [0:{size}];
 
