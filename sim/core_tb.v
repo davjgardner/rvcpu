@@ -16,7 +16,10 @@ module core_tb();
 
    always @(posedge clk) begin
       cnt <= cnt + 1;
-   end;
+      if (cnt == 1000) begin
+         $finish;
+      end
+   end
 
    wire mem_read_valid;
    wire mem_write_valid;
