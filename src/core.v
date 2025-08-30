@@ -77,7 +77,6 @@ module core(
    wire        rd_valid = is_r_type || is_i_type || is_u_type || is_j_type;
    wire        is_mem = is_load || is_s_type;
 
-
    // R type has no immediate
    // immediate must be sign-extended
    wire [31:0] imm = (is_i_type? {{20{instr[31]}}, instr[31:20]}:
@@ -86,6 +85,10 @@ module core(
                       is_u_type? {instr[31:12], 12'b0}:
                       is_j_type? {{12{instr[31]}}, instr[19:12], instr[20], instr[30:21]}:
                       32'b0);
+
+   wire signed [31:0] signed_rs1 = regfile[rs1];
+   wire signed [31:0] signed_rs2 = regfile[rs2];
+   wire signed [31:0] signed_imm = imm;
 
    wire        is_add   = is_r_type && funct3 == 3'h0 && funct7 == 7'h00;
    wire        is_sub   = is_r_type && funct3 == 3'h0 && funct7 == 7'h20;
@@ -186,8 +189,8 @@ module core(
                          is_sll? regfile[rs1] << regfile[rs2]:
                          is_srl? regfile[rs1] >> regfile[rs2]:
                          is_sra? regfile[rs1] >>> regfile[rs2]:
-                         is_slt? regfile[rs1] < regfile[rs2]:
-                         is_sltu? regfile[rs1] < regfile[rs2]: // TODO
+                         is_slt? signed_rs1 < signed_rs2:
+                         is_sltu? regfile[rs1] < regfile[rs2]:
 
                          is_addi? regfile[rs1] + imm:
                          is_xori? regfile[rs1] ^ imm:
@@ -196,18 +199,18 @@ module core(
                          is_slli? regfile[rs1] << imm:
                          is_srli? regfile[rs1] >> imm:
                          is_srai? regfile[rs1] >>> imm:
-                         is_slti? regfile[rs1] < imm:
-                         is_sltiu? regfile[rs1] < imm: // TODO
+                         is_slti? signed_rs1 < signed_imm:
+                         is_sltiu? regfile[rs1] < imm:
                          is_jal? pc + 4:
                          is_jalr? pc + 4:
                          32'd0);
 
               branch_taken <= (is_beq?  regfile[rs1] == regfile[rs2]:
                                is_bne?  regfile[rs1] != regfile[rs2]:
-                               is_blt?  regfile[rs1] <  regfile[rs2]:
-                               is_bge?  regfile[rs1] >= regfile[rs2]:
-                               is_bltu? regfile[rs1] <  regfile[rs2]: // TODO
-                               is_bgeu? regfile[rs1] >= regfile[rs2]: // TODO
+                               is_blt?  signed_rs1 <  signed_rs2:
+                               is_bge?  signed_rs1 >= signed_rs2:
+                               is_bltu? regfile[rs1] <  regfile[rs2]:
+                               is_bgeu? regfile[rs1] >= regfile[rs2]:
                                1'b0);
               // deal with jal* separately
 
